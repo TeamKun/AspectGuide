@@ -23,61 +23,115 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
-// The value here should match an entry in the META-INF/mods.toml file
+/**
+ * AspectGuide Modクラス
+ */
 @Mod("aspectguide")
 public class AspectGuide {
     // Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
 
+    /**
+     * コンストラクタ
+     * イベントを追加する
+     */
     public AspectGuide() {
+        // Modイベント登録
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        // Forgeイベント登録
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+    /**
+     * クライアントの初期化処理
+     *
+     * @param event クライアント初期化イベント
+     */
     private void doClientStuff(FMLClientSetupEvent event) {
+        // キーをバインドする
         Bindings.bind();
     }
 
+    /**
+     * キー押下イベント
+     *
+     * @param event キー入力イベント
+     */
     @SubscribeEvent
     public void onKeyPressed(InputEvent.KeyInputEvent event) {
+        // キーが押された
         Bindings.onPressed();
     }
 
+    /**
+     * 描画イベント
+     *
+     * @param event 描画イベント
+     */
     @SubscribeEvent
     public void onRender(RenderGameOverlayEvent.Post event) {
+        // 描画を行う
         Renderer.onRender(event);
     }
 
+    /**
+     * キーバインド処理クラス
+     */
     public static class Bindings {
+        // キー
         private static final KeyBinding TOGGLE = new KeyBinding("key.aspectguide.toggle", KeyConflictContext.UNIVERSAL, InputMappings.Type.KEYSYM, GLFW.GLFW_KEY_F4, "key.categories.ui");
+        // 機能が有効であるフラグ
         public static boolean IsEnabled;
 
+        /**
+         * キー登録を行う
+         */
         public static void bind() {
+            // FMLにキーを登録する
             ClientRegistry.registerKeyBinding(TOGGLE);
         }
 
+        /**
+         * キー押下イベント
+         */
         public static void onPressed() {
+            // TOGGLEキーが押されているかチェックする
             if (Bindings.TOGGLE.isPressed())
+                // 機能有効フラグを切り替え
                 IsEnabled = !IsEnabled;
         }
     }
 
+    /**
+     * 描画クラス
+     */
     public static class Renderer {
+        /**
+         * 描画を行う
+         *
+         * @param event 描画イベント
+         */
         public static void onRender(RenderGameOverlayEvent.Post event) {
+            // 十字マークを表示するタイミングで描画する (色が反転する描画になる)
             if (event.getType() != RenderGameOverlayEvent.ElementType.CROSSHAIRS)
                 return;
 
+            // 機能が有効であるかチェックする
             if (!Bindings.IsEnabled)
                 return;
 
+            // 行列を取得
             MatrixStack matrixStack = event.getMatrixStack();
             Matrix4f matrix = matrixStack.getLast().getMatrix();
+            // ウィンドウのサイズ
             MainWindow window = event.getWindow();
 
+            // 位置の計算
             float margin = 2.0f;
             float aspect = 16.0f / 9.0f;
             float alpha = 0.5f;
 
+            // アスペクト計算
             float width = window.getScaledWidth();
             float height = window.getScaledHeight();
             float minWidth = width;
@@ -87,9 +141,11 @@ public class AspectGuide {
             else
                 minWidth = height / aspect;
 
+            // 描画設定する
             RenderSystem.disableTexture();
             RenderSystem.lineWidth(1);
 
+            // 四角形を描画する
             Tessellator t = Tessellator.getInstance();
             BufferBuilder b = t.getBuffer();
             b.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION_COLOR);
@@ -99,6 +155,7 @@ public class AspectGuide {
             b.pos(matrix, width / 2 + (minWidth / 2 + margin), height / 2 - (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
             t.draw();
 
+            // 描画設定を戻す
             RenderSystem.enableTexture();
         }
     }
