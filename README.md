@@ -1,6 +1,7 @@
 # AspectGuide
 
 ![Minecraft Forge 1.16.5](https://img.shields.io/badge/Minecraft%20Forge-1.16.5-green)
+![Minecraft Forge 1.12.2](https://img.shields.io/badge/Minecraft%20Forge-1.12.2-green)
 
 Short動画用に、縦長9:16のガイドを表示します。
 
