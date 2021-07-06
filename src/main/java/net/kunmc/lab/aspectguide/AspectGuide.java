@@ -22,12 +22,12 @@ import org.lwjgl.opengl.GL11;
  * AspectGuide Modクラス
  */
 @Mod(
-        modid = Aspectguide.MOD_ID,
-        name = Aspectguide.MOD_NAME,
+        modid = AspectGuide.MOD_ID,
+        name = AspectGuide.MOD_NAME,
         clientSideOnly = true,
-        version = Aspectguide.VERSION
+        version = AspectGuide.VERSION
 )
-public class Aspectguide {
+public class AspectGuide {
 
     public static final String MOD_ID = "aspectguide";
     public static final String MOD_NAME = "AspectGuide";
@@ -37,7 +37,7 @@ public class Aspectguide {
      * This is the instance of your mod as created by Forge. It will never be null.
      */
     @Mod.Instance(MOD_ID)
-    public static Aspectguide INSTANCE;
+    public static AspectGuide INSTANCE;
 
     /**
      * イベントを追加する
