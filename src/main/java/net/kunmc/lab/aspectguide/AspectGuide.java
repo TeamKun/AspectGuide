@@ -1,53 +1,51 @@
 package net.kunmc.lab.aspectguide;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MainWindow;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.lwjgl.glfw.GLFW;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 /**
  * AspectGuide Modクラス
  */
-@Mod("aspectguide")
-public class AspectGuide {
-    // Directly reference a log4j logger.
-    private static final Logger LOGGER = LogManager.getLogger();
+@Mod(
+        modid = Aspectguide.MOD_ID,
+        name = Aspectguide.MOD_NAME,
+        clientSideOnly = true,
+        version = Aspectguide.VERSION
+)
+public class Aspectguide {
+
+    public static final String MOD_ID = "aspectguide";
+    public static final String MOD_NAME = "AspectGuide";
+    public static final String VERSION = "1.0-SNAPSHOT";
 
     /**
-     * コンストラクタ
+     * This is the instance of your mod as created by Forge. It will never be null.
+     */
+    @Mod.Instance(MOD_ID)
+    public static Aspectguide INSTANCE;
+
+    /**
      * イベントを追加する
      */
-    public AspectGuide() {
-        // Modイベント登録
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+    @Mod.EventHandler
+    public void preinit(FMLPreInitializationEvent event) {
         // Forgeイベント登録
         MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    /**
-     * クライアントの初期化処理
-     *
-     * @param event クライアント初期化イベント
-     */
-    private void doClientStuff(FMLClientSetupEvent event) {
         // キーをバインドする
         Bindings.bind();
     }
@@ -79,7 +77,7 @@ public class AspectGuide {
      */
     public static class Bindings {
         // キー
-        private static final KeyBinding TOGGLE = new KeyBinding("key.aspectguide.toggle", KeyConflictContext.UNIVERSAL, InputMappings.Type.KEYSYM, GLFW.GLFW_KEY_F4, "key.categories.ui");
+        private static final KeyBinding TOGGLE = new KeyBinding("key.aspectguide.toggle", KeyConflictContext.UNIVERSAL, KeyModifier.NONE, Keyboard.KEY_F4, "key.categories.ui");
         // 機能が有効であるフラグ
         public static boolean IsEnabled;
 
@@ -120,11 +118,8 @@ public class AspectGuide {
             if (!Bindings.IsEnabled)
                 return;
 
-            // 行列を取得
-            MatrixStack matrixStack = event.getMatrixStack();
-            Matrix4f matrix = matrixStack.getLast().getMatrix();
             // ウィンドウのサイズ
-            MainWindow window = event.getWindow();
+            ScaledResolution window = event.getResolution();
 
             // 位置の計算
             float margin = 2.0f;
@@ -142,21 +137,21 @@ public class AspectGuide {
                 minWidth = height / aspect;
 
             // 描画設定する
-            RenderSystem.disableTexture();
-            RenderSystem.lineWidth(1);
+            GlStateManager.disableTexture2D();
+            GlStateManager.glLineWidth(1);
 
             // 四角形を描画する
             Tessellator t = Tessellator.getInstance();
             BufferBuilder b = t.getBuffer();
             b.begin(GL11.GL_LINE_LOOP, DefaultVertexFormats.POSITION_COLOR);
-            b.pos(matrix, width / 2 - (minWidth / 2 + margin), height / 2 - (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
-            b.pos(matrix, width / 2 - (minWidth / 2 + margin), height / 2 + (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
-            b.pos(matrix, width / 2 + (minWidth / 2 + margin), height / 2 + (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
-            b.pos(matrix, width / 2 + (minWidth / 2 + margin), height / 2 - (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
+            b.pos(width / 2 - (minWidth / 2 + margin), height / 2 - (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
+            b.pos(width / 2 - (minWidth / 2 + margin), height / 2 + (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
+            b.pos(width / 2 + (minWidth / 2 + margin), height / 2 + (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
+            b.pos(width / 2 + (minWidth / 2 + margin), height / 2 - (minHeight / 2 + margin), 0).color(1, 1, 1, alpha).endVertex();
             t.draw();
 
             // 描画設定を戻す
-            RenderSystem.enableTexture();
+            GlStateManager.enableTexture2D();
         }
     }
 }
